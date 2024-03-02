@@ -1000,7 +1000,7 @@ app.use(cors());
 
 app.options("*", cors());
 
-app.get("/123", async (req, res) => {
+app.get("/api", async (req, res) => {
   const params = ["imei", "zpw_sek"];
 
   if (!req.query || (req.query && Object.keys(req.query).length === 0)) {
