@@ -1,0 +1,20 @@
+{
+  "version": "5",
+  "dialect": "pg",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1710527989515,
+      "tag": "0000_warm_warstar",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1710528082843,
+      "tag": "0001_perfect_iceman",
+      "breakpoints": true
+    }
+  ]
+}
