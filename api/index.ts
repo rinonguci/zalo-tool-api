@@ -14,19 +14,53 @@ app.use(cors());
 
 app.options("*", cors());
 
+function randomId(prefix = "Faly", length = 6) {
+  let result = "";
+  for (let i = 0; i < length; i++) {
+    const random = Math.random();
+    result += String.fromCharCode(
+      Math.floor(random * 26) + (random < 0.5 ? 65 : 97)
+    );
+  }
+  return result;
+}
+
+async function genId() {
+  const id = randomId();
+  const idExists = await db.query.accountsTable.findFirst({
+    where: eq(accountsTable.shortId, id),
+  });
+  return idExists ? await genId() : id;
+}
+
 const verifyAccount = async (id: string) => {
   const user = await db.query.accountsTable.findFirst({
     where: eq(accountsTable.id, id),
   });
   if (!user) {
-    await db.insert(accountsTable).values({
-      id,
-    });
+    const shortId = await genId();
+    const data = await db
+      .insert(accountsTable)
+      .values({
+        id,
+        shortId,
+      })
+      .returning();
     return {
       status: false,
       message: "Tài khoản chưa được đăng ký hoặc đã hết hạn sử dụng",
-      data: null,
+      data: data[0],
     };
+  }
+
+  if (!user.shortId) {
+    const shortId = await genId();
+    await db
+      .update(accountsTable)
+      .set({
+        shortId,
+      })
+      .where(eq(accountsTable.id, id));
   }
 
   if (user.expiredAt && dayjs(user.expiredAt).isAfter(dayjs())) {
@@ -40,7 +74,7 @@ const verifyAccount = async (id: string) => {
   return {
     status: false,
     message: "Tài khoản đã hết hạn sử dụng",
-    data: null,
+    data: user,
   };
 };
 
