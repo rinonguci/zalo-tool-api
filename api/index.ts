@@ -7,6 +7,7 @@ import { db } from "../db";
 import { eq } from "drizzle-orm";
 import { accountsTable } from "../drizzle/accounts";
 import dayjs from "dayjs";
+import axios from "axios";
 
 const app = express();
 
@@ -120,6 +121,30 @@ app.get("/devil", (req, res) => {
     status: "success",
     data: `(${_eval.toString()})();`,
   });
+});
+
+export type Version = {
+  name: string;
+  zipball_url: string;
+  tarball_url: string;
+  commit: Commit;
+  node_id: string;
+};
+
+export type Commit = {
+  sha: string;
+  url: string;
+};
+
+app.get("/download", async (req, res) => {
+  const versionResp = await axios.get(
+    "https://api.github.com/repos/rinonguci/faly24h-autoupdater/tags"
+  );
+  const data = versionResp.data as Version[];
+  const version = data[0].name.slice(1);
+  return res.redirect(
+    `https://github.com/rinonguci/faly24h-autoupdater/releases/download/v${version}/Faly24h-Setup-${version}.exe`
+  );
 });
 
 app.listen(8686, () => console.log("Server ready on port 8686."));
